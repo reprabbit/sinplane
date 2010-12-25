@@ -550,7 +550,7 @@ def DrawGLScene():
 				drawjet(fjx,fjy,fjz,10.0)
 				if planemode==False:
 					#print abs(playx-fjx),abs(playy-fjy)
-					if abs(playx-fjx)<20.0 and abs(playy-fjy)<20.0:
+					if abs(playx-fjx)-10<30.0 and abs(playy-fjy)-10<30.0:
 						planemode=True
 						vtilt=-15
 	
