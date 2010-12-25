@@ -76,6 +76,8 @@ ax=0
 ay=0
 vtilt=5.0
 zoom=-900.0
+ww=640
+wh=480
 # Rotation angle for the quadrilateral.
 t = 0.0
 lasttime=time.time()
@@ -99,6 +101,9 @@ walk=0.07
 # A general OpenGL initialization function.  Sets all of the initial parameters. 
 
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
+	global wh,ww
+	ww=Width
+	wh=Height
 	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
 	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
@@ -112,9 +117,13 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	#glEnable(GL_LIGHTING)
 	#glEnable(GL_LIGHT0)
 	glMatrixMode(GL_MODELVIEW)
+	glutWarpPointer(ww/2,wh/2)
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
+	global wh,ww
+	ww=Width
+	wh=Height
 	if Height == 0:						# Prevent A Divide By Zero If The Window Is Too Small 
 		Height = 1
 
@@ -122,10 +131,12 @@ def ReSizeGLScene(Width, Height):
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 	gluPerspective(90.0, float(Width)/float(Height), 0.1, 5000.0)
+	
 	#glEnable(GL_LIGHTING)
 	#glEnable(GL_LIGHT0)
 	dontskip=True
 	glMatrixMode(GL_MODELVIEW)
+	glutWarpPointer(ww/2,wh/2)
 
 # The main drawing function. 
 
@@ -539,7 +550,7 @@ def DrawGLScene():
 				drawjet(fjx,fjy,fjz,10.0)
 				if planemode==False:
 					#print abs(playx-fjx),abs(playy-fjy)
-					if abs(playx-fjx)<20 and abs(playy-fjy)<20:
+					if abs(playx-fjx)<20.0 and abs(playy-fjy)<20.0:
 						planemode=True
 						vtilt=-15
 	
@@ -561,6 +572,25 @@ def keyPressed(*args):
 	if args[0] == ESCAPE:
 		sys.exit()
 	dkeys[args[0]]=True
+
+
+def Mousemove(x,y):
+	glutSetCursor(GLUT_CURSOR_NONE) 
+	global ww,wh,vtilt,ptheta,dontskip
+	mx=ww/2-x
+	my=wh/2-y
+	ptheta=ptheta-mx/10.0
+	vtilt=vtilt-my/10.0
+	#print mx,my
+	dontskip=True
+	
+	#DrawGLScene()
+	
+	if mx!=0 or my!=0:
+		glutWarpPointer(ww/2,wh/2)
+		
+def Mouserelease(x,y):
+	glutSetCursor(GLUT_CURSOR_INHERIT) 	
 
 def keyReleased(*args):
 	global dkeys
@@ -609,6 +639,8 @@ def main():
 	# Register the function called when the keyboard is pressed.  
 	glutKeyboardFunc(keyPressed)
 	glutKeyboardUpFunc(keyReleased)
+	glutMotionFunc(Mousemove)
+	glutPassiveMotionFunc(Mouserelease)
 	# Initialize our window. 
 	InitGL(640, 480)
 
