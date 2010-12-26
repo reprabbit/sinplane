@@ -81,7 +81,7 @@ wh=480
 # Rotation angle for the quadrilateral.
 t = 0.0
 lasttime=time.time()
-dkeys={'a':False,'s':False,'d':False,'w':False,'e':False,'q':False,'r':False,'f':False,'x':False,'z':False,'p':False,}
+dkeys={'a':False,'s':False,'d':False,'w':False,'e':False,'q':False,'r':False,'f':False,'x':False,'z':False,'p':False,'m':False}
 dontskip=True
 points=numpy.zeros([dsize,dsize,4], 'f')
 wateron=True
@@ -94,7 +94,7 @@ playy=0.0
 playz=10.0
 ptheta=0.0
 planemode=False
-
+mlook=False
 walk=0.07
 
 
@@ -121,7 +121,9 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
-	global wh,ww
+	global wh,ww,dontskip
+	dontskip=True
+
 	ww=Width
 	wh=Height
 	if Height == 0:						# Prevent A Divide By Zero If The Window Is Too Small 
@@ -136,7 +138,8 @@ def ReSizeGLScene(Width, Height):
 	#glEnable(GL_LIGHT0)
 	dontskip=True
 	glMatrixMode(GL_MODELVIEW)
-	glutWarpPointer(ww/2,wh/2)
+
+	#glutWarpPointer(ww/2,wh/2)
 
 # The main drawing function. 
 
@@ -309,6 +312,13 @@ def DrawGLScene():
 		if dkeys['x']==True:
 			zoom-=t	*rotaccel	*3
 			skiprender=False
+		if dkeys['m']==True:
+			dkeys['m']=False
+			global mlook
+			if mlook==True:
+				mlook=False
+			elif mlook==False:
+				mlook=True
 		if dontskip==True:
 			skiprender=False
 			dontskip=False	
@@ -342,7 +352,7 @@ def DrawGLScene():
 			dontskip=True
 		walk=0.3
 		#slope= playz-opz
-		if playz<-floatlevel:
+		if playz<-waterl:
 			playz=-floatlevel
 			walk*=0.2
 			planemode=False
@@ -397,6 +407,13 @@ def DrawGLScene():
 			dontskip=False	
 		if dkeys['p']==True:
 			planemode=True
+		if dkeys['m']==True:
+				dkeys['m']=False
+				global mlook
+				if mlook==True:
+					mlook=False
+				elif mlook==False:
+					mlook=True 
 
 		opz=playz
 		#((j-asize/2)+(yof-(yof%1.0)))/2
@@ -427,7 +444,7 @@ def DrawGLScene():
 	
 	
 	if planemode==False:
-		drawtarget()
+		#drawtarget()
 #	glRotatef(rtri,0.0,1.0,0.0);			# Rotate The Pyramid On It's Y Axis
 	# flatten
 	
@@ -576,23 +593,33 @@ def keyPressed(*args):
 	dkeys[args[0]]=True
 
 
-def Mousemove(x,y):
-	glutSetCursor(GLUT_CURSOR_NONE) 
-	global ww,wh,vtilt,ptheta,dontskip
-	mx=ww/2-x
-	my=wh/2-y
-	ptheta=ptheta-mx/10.0
-	vtilt=vtilt-my/10.0
-	#print mx,my
-	dontskip=True
-	
-	#DrawGLScene()
-	
-	if mx!=0 or my!=0:
-		glutWarpPointer(ww/2,wh/2)
-		
+#def Mousemove(x,y):
+#	global mlook
+#	if mlook==True:
+#		mlook=False
+#		glutSetCursor(GLUT_CURSOR_INHERIT)
+#	if mlook==False:
+#		mlook=True
+#		glutSetCursor(GLUT_CURSOR_NONE) 
+
 def Mouserelease(x,y):
-	glutSetCursor(GLUT_CURSOR_INHERIT) 	
+	global mlook,ww,wh,vtilt,ptheta,dontskip
+	if mlook==True:
+		glutSetCursor(GLUT_CURSOR_NONE) 
+		mx=ww/2-x
+		my=wh/2-y
+		ptheta=ptheta-mx/10.0
+		vtilt=vtilt-my/10.0
+		#print mx,my
+		dontskip=True
+		glutSetCursor(GLUT_CURSOR_NONE)
+		#DrawGLScene()
+		if mx!=0 or my!=0:
+			glutWarpPointer(ww/2,wh/2)
+	else:
+		glutSetCursor(GLUT_CURSOR_INHERIT)	
+	
+	
 
 def keyReleased(*args):
 	global dkeys
@@ -641,7 +668,7 @@ def main():
 	# Register the function called when the keyboard is pressed.  
 	glutKeyboardFunc(keyPressed)
 	glutKeyboardUpFunc(keyReleased)
-	glutMotionFunc(Mousemove)
+#	glutMotionFunc(Mousemove)
 	glutPassiveMotionFunc(Mouserelease)
 	# Initialize our window. 
 	InitGL(640, 480)
