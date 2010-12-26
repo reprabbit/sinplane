@@ -260,6 +260,7 @@ def drawaxis():
 def DrawGLScene():
 	global rtri, t,upscale,asize,sqsiz,elevate,xof,yof,points,dsize,lasttime,dkeys,vtilt,zoom
 	global playx,playy,playz,ptheta,dontskip,wateron,waterl,floatlevel,walk,planemode,camback
+	global mlook
 	timesince=time.time()-lasttime
 	t = timesince*7.0		 # Decrease The Rotation Variable For The Quad
 	lasttime=time.time()
@@ -314,7 +315,6 @@ def DrawGLScene():
 			skiprender=False
 		if dkeys['m']==True:
 			dkeys['m']=False
-			global mlook
 			if mlook==True:
 				mlook=False
 			elif mlook==False:
@@ -409,7 +409,6 @@ def DrawGLScene():
 			planemode=True
 		if dkeys['m']==True:
 				dkeys['m']=False
-				global mlook
 				if mlook==True:
 					mlook=False
 				elif mlook==False:
@@ -586,20 +585,23 @@ def DrawGLScene():
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)  
 def keyPressed(*args):
-	global dkeys
+	global dkeys, mlook
 	# If escape is pressed, kill everything.
 	if args[0] == ESCAPE:
+		mlook=False
+	if args[0]=='q':
 		sys.exit()
+		
 	dkeys[args[0]]=True
 
 
-#def Mousemove(x,y):
-#	global mlook
+def Mousemove(x,y):
+	global mlook
 #	if mlook==True:
 #		mlook=False
 #		glutSetCursor(GLUT_CURSOR_INHERIT)
 #	if mlook==False:
-#		mlook=True
+	mlook=True
 #		glutSetCursor(GLUT_CURSOR_NONE) 
 
 def Mouserelease(x,y):
@@ -668,7 +670,7 @@ def main():
 	# Register the function called when the keyboard is pressed.  
 	glutKeyboardFunc(keyPressed)
 	glutKeyboardUpFunc(keyReleased)
-#	glutMotionFunc(Mousemove)
+	glutMotionFunc(Mousemove)
 	glutPassiveMotionFunc(Mouserelease)
 	# Initialize our window. 
 	InitGL(640, 480)
