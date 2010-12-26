@@ -359,10 +359,12 @@ def DrawGLScene():
 		skiprender=True
 		#print dkeys.keys()
 		if dkeys['a']==True:
-			ptheta-=t*rotaccel
+			yof+=t*sin(-ptheta*3.14/180)*walk
+			xof-=t*cos(-ptheta*3.14/180)*walk
 			skiprender=False
 		if dkeys['d']==True:
-			ptheta+=t*rotaccel
+			yof-=t*sin(-ptheta*3.14/180)*walk
+			xof+=t*cos(-ptheta*3.14/180)*walk
 			skiprender=False
 		if dkeys['w']==True:
 			yof-=t*cos(-ptheta*3.14/180)*walk
