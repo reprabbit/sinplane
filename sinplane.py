@@ -442,6 +442,9 @@ def DrawGLScene():
 	glLoadIdentity()					# Reset The View
 	
 	
+	
+
+	
 	if planemode==False:
 		#drawtarget()
 #	glRotatef(rtri,0.0,1.0,0.0);			# Rotate The Pyramid On It's Y Axis
@@ -452,15 +455,21 @@ def DrawGLScene():
 	#	glTranslatef(0,0,-camback);
 		
 		glRotatef(vtilt,1.0,0.0,0.0);				# tilt		
+
 	if planemode==True:
 		if camback<300.0:
 			camback+=8
-		
+		glRotatef(ptheta,0.0,1.0,0.0);
+		glDepthMask(0)
+		glutWireCube(5)
+		glDepthMask(1)
+		glRotatef(-ptheta,0.0,1.0,0.0);
 		glTranslatef(0,-camback/3,-camback);
 		glRotatef(20,1.0,0.0,0.0);
 		glRotatef(-vtilt,1.0,0.0,0.0);
 		glScalef(5,5,5)
 		drawjet()
+
 		glScalef(0.20,0.20,0.20)
 		glRotatef(vtilt,1.0,0.0,0.0);
 		
@@ -470,10 +479,13 @@ def DrawGLScene():
 		
 		
 	
-	glRotatef(ptheta,0.0,1.0,0.0);			# Rotate The Pyramid On It's Y Axis
+	glRotatef(ptheta,0.0,1.0,0.0);			# Rotate the world left and right
+	glDepthMask(0)
+	glutWireCube(5)
+	glDepthMask(1)
 	glRotatef(90,1.0,0.0,0.0);		
 
-
+	
 
 	glTranslatef(0,0,playz*elevate);				# Move up above terrain
 
@@ -595,13 +607,26 @@ def keyPressed(*args):
 	dkeys[args[0]]=True
 
 
-def Mousemove(x,y):
+def Leclick(button,state,x,y):
 	global mlook
+	if state==GLUT_DOWN:
+		if mlook==True:
+			mlook=False
+			glutSetCursor(GLUT_CURSOR_INHERIT)
+		elif mlook==False:
+			mlook=True
+			glutSetCursor(GLUT_CURSOR_NONE) 
+			mx=ww/2-x
+			my=wh/2-y
+			if mx!=0 or my!=0:
+				glutWarpPointer(ww/2,wh/2)
+
+def Mousemove(x,y):
+	Mouserelease(x,y)
 #	if mlook==True:
 #		mlook=False
 #		glutSetCursor(GLUT_CURSOR_INHERIT)
 #	if mlook==False:
-	mlook=True
 #		glutSetCursor(GLUT_CURSOR_NONE) 
 
 def Mouserelease(x,y):
@@ -672,6 +697,7 @@ def main():
 	glutKeyboardUpFunc(keyReleased)
 	glutMotionFunc(Mousemove)
 	glutPassiveMotionFunc(Mouserelease)
+	glutMouseFunc(Leclick)
 	# Initialize our window. 
 	InitGL(640, 480)
 
@@ -679,6 +705,6 @@ def main():
 	glutMainLoop()
 
 # Print message to console, and kick off the main to get it rolling.
-print "Hit ESC key to quit."
+print "Hit Q key to quit."
 main()
 		
